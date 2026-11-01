@@ -134,7 +134,7 @@
 
   /* ---------- Hero ---------- */
   main { flex: 1; display: flex; flex-direction: column; }
-  .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 20px 12vh; position: relative; isolation: isolate; }
+  .hero { overflow-x: hidden; overflow-x: clip; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 20px 12vh; position: relative; isolation: isolate; }
   .hero::before { content: ""; position: absolute; z-index: -1; width: min(820px, 120vw); aspect-ratio: 1.6; top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(closest-side at 35% 45%, color-mix(in srgb, var(--accent) 22%, transparent), transparent), radial-gradient(closest-side at 68% 55%, color-mix(in srgb, var(--accent-2) 18%, transparent), transparent); filter: blur(30px); pointer-events: none; }
   .hero-logo { display: inline-flex; align-items: center; gap: 14px; margin-bottom: 14px; }
   .hero-logo .brand-mark { width: 54px; height: 54px; border-radius: 16px; }
@@ -330,6 +330,53 @@
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); background: var(--text); color: var(--bg); padding: 11px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100; max-width: calc(100vw - 32px); text-align: center; box-shadow: var(--shadow-lg); }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ---------- Search by image ---------- */
+  .search .cam { width: 38px; height: 38px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; transition: background .15s, color .15s; }
+  .search .cam:hover { background: var(--surface-2); color: var(--accent); }
+  .search .cam svg { width: 21px; height: 21px; }
+  .is-results .search .cam { width: 34px; height: 34px; }
+  .is-results .search .cam svg { width: 19px; height: 19px; }
+  dialog.imgsearch { width: min(560px, calc(100vw - 24px)); }
+  .drop { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 170px; padding: 22px; border: 2px dashed var(--line); border-radius: 16px; background: var(--bg); text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop:focus-visible, .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--bg)); outline: none; }
+  .drop .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); margin-bottom: 4px; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .drop .ico svg { width: 24px; height: 24px; }
+  .drop strong { font-size: 15.5px; }
+  .drop span { color: var(--muted); font-size: 13.5px; }
+  .drop span u { color: var(--accent); text-underline-offset: 3px; }
+  .drop kbd, .m-tip kbd { font: 600 11.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 2px 5px; background: var(--surface); }
+  .preview { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+  .preview[hidden], .drop[hidden] { display: none; }
+  .preview .thumb { width: 84px; height: 84px; border-radius: 12px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; flex-shrink: 0; border: 1px solid var(--line); }
+  .preview .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .preview .thumb .na { font-size: 11px; color: var(--muted); padding: 6px; text-align: center; }
+  .preview .meta { flex: 1; min-width: 0; }
+  .preview .pname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .preview .psub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12.5px; margin: 14px 0; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .url-row { display: flex; gap: 8px; }
+  .url-row input { flex: 1; min-width: 0; height: 42px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); color: var(--text); padding: 0 12px; font: inherit; font-size: 14px; }
+  .url-row input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+  .img-err { color: #e5484d; font-size: 13px; margin-top: 8px; min-height: 0; }
+  .img-err:empty { display: none; }
+  .providers-label { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 18px 2px 8px; }
+  .providers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prov { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); cursor: pointer; text-align: left; transition: border-color .15s, transform .1s, background .15s; }
+  .prov:hover:not(:disabled) { border-color: var(--accent); }
+  .prov:active:not(:disabled) { transform: scale(.98); }
+  .prov:disabled { opacity: .45; cursor: not-allowed; }
+  .prov .logo { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .prov .pt { display: flex; flex-direction: column; min-width: 0; }
+  .prov .pt b { font-size: 14px; }
+  .prov .pt small { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prov.primary { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  .drop-overlay { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .drop-overlay.show { display: flex; }
+  .drop-overlay .box { border: 2.5px dashed var(--accent); border-radius: 24px; padding: 40px 56px; text-align: center; background: var(--surface); box-shadow: var(--shadow-lg); font-weight: 700; font-size: 18px; }
+  .drop-overlay .box small { display: block; font-weight: 500; color: var(--muted); font-size: 13.5px; margin-top: 6px; }
+  @media (max-width: 640px) { .search .cam { width: 34px; height: 34px; } .providers { grid-template-columns: 1fr; } .drop { min-height: 140px; } }
+
   /* ---------- Footer ---------- */
   footer { padding: 18px 20px; padding-bottom: max(18px, env(safe-area-inset-bottom)); text-align: center; color: var(--muted); font-size: 12.5px; }
   footer a { color: inherit; }
@@ -391,12 +438,13 @@
           <input id="q" name="q" type="search" inputmode="search" enterkeyhint="search" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Search the web">
           <span class="kbd" aria-hidden="true">/</span>
           <button class="clear" id="clear" type="button" aria-label="Clear search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          <button class="cam" id="cam" type="button" aria-label="Search by image" title="Search by image (upload, drop or paste)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.5"/></svg></button>
           <button class="go" type="submit" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Search</span></button>
         </form>
       </div>
 
       <div class="recent" id="recent" hidden aria-label="Recent searches"></div>
-      <div class="hint">Press <kbd>/</kbd> anywhere to start typing</div>
+      <div class="hint">Press <kbd>/</kbd> to type &middot; paste or drop an image to search by image</div>
       <div class="notice" id="notice-home" role="alert"></div>
     </section>
 
@@ -419,6 +467,35 @@
   <dialog class="manager" id="manager" aria-labelledby="m-title">
     <form method="dialog" id="m-form" novalidate></form>
   </dialog>
+  <dialog class="manager imgsearch" id="imgdlg" aria-labelledby="i-title">
+    <div class="m-head"><div class="txt"><h2 id="i-title">Search by image</h2><p>Upload, drop or paste an image, or use a link to one.</p></div>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="m-body" style="padding-bottom:20px">
+      <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="drop-sub">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
+        <strong>Drop an image here</strong>
+        <span id="drop-sub">or <u>choose a file</u> &middot; paste with <kbd>Ctrl</kbd>+<kbd>V</kbd></span>
+      </div>
+      <input type="file" id="img-file" accept="image/*" hidden>
+      <div class="preview" id="preview" hidden>
+        <div class="thumb" id="thumb"></div>
+        <div class="meta"><div class="pname" id="pname"></div><div class="psub" id="psub"></div></div>
+        <button type="button" class="btn btn-ghost" id="img-change">Change</button>
+      </div>
+      <div class="or" id="or">or</div>
+      <form class="url-row" id="url-form" novalidate>
+        <label for="img-url" class="sr-only">Image link</label>
+        <input type="url" id="img-url" placeholder="Paste an image link (https://…)" autocomplete="off" spellcheck="false" inputmode="url">
+        <button type="submit" class="btn">Use link</button>
+      </form>
+      <div class="img-err" id="img-err" role="alert"></div>
+      <div class="providers-label">Search with</div>
+      <div class="providers" id="providers"></div>
+      <p class="m-tip">Results open in a new tab on the service you pick. Image search covers the whole web, not only your engines.</p>
+    </div>
+  </dialog>
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true"><div class="box">Drop to search by image<small>Release to choose where to search</small></div></div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <noscript><div class="notice show" style="display:block">This search needs JavaScript enabled.</div></noscript>
@@ -671,7 +748,7 @@
   });
 
   document.addEventListener("keydown", function (e) {
-    if (dialog.open) return;
+    if (document.querySelector("dialog[open]")) return;
     if ((e.key === "/" && !isTypingTarget(e.target)) || (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey))) {
       e.preventDefault(); input.focus(); input.select();
     } else if (e.altKey && !e.ctrlKey && !e.metaKey && /^Digit[1-9]$/.test(e.code)) {
@@ -680,7 +757,7 @@
     }
   });
   window.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape" || dialog.open) return;
+    if (e.key !== "Escape" || document.querySelector("dialog[open]")) return;
     if (engineMenu.classList.contains("open")) { e.stopImmediatePropagation(); e.preventDefault(); closeMenu(true); return; }
     if (document.querySelector(".gs-imagePreviewArea")) return; // let Google close an open image preview
     if (body.classList.contains("is-results")) e.stopImmediatePropagation();
@@ -889,6 +966,151 @@
     toast("Saved " + engines.length + (engines.length === 1 ? " engine." : " engines."));
   });
   dialog.addEventListener("click", function (e) { if (e.target === dialog) dialog.close(); });
+
+
+  /* ---------- Search by image ---------- */
+  var imgDlg = $("#imgdlg"), imgFile = $("#img-file"), drop = $("#drop"), preview = $("#preview"), imgErr = $("#img-err"), imgUrlIn = $("#img-url");
+  var img = null; // { kind: "file", file, base64, name, size, w, h, src } | { kind: "url", url }
+  var PROVIDERS = [
+    { id: "lens", name: "Google Lens", color: "#4285f4", letter: "G", file: true, url: function (u) { return "https://lens.google.com/uploadbyurl?url=" + encodeURIComponent(u); } },
+    { id: "bing", name: "Bing Visual Search", color: "#0f8a7e", letter: "B", file: true, url: function (u) { return "https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:" + encodeURIComponent(u); } },
+    { id: "yandex", name: "Yandex Images", color: "#fc3f1d", letter: "Y", file: false, url: function (u) { return "https://yandex.com/images/search?rpt=imageview&url=" + encodeURIComponent(u); } },
+    { id: "tineye", name: "TinEye", color: "#3b4a5a", letter: "T", file: false, url: function (u) { return "https://tineye.com/search?url=" + encodeURIComponent(u); } }
+  ];
+  function isImageUrl(t) { return /^https?:\/\/\S+\.(png|jpe?g|gif|webp|bmp|avif|svg)(\?\S*)?(#\S*)?$/i.test((t || "").trim()); }
+  function fmtSize(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB"; }
+
+  function renderProviders() {
+    var box = $("#providers"); box.innerHTML = "";
+    PROVIDERS.forEach(function (pv, i) {
+      var b = el("button", "prov" + (i === 0 ? " primary" : "")); b.type = "button"; b.dataset.provider = pv.id;
+      var logo = el("span", "logo", pv.letter); logo.style.background = pv.color; logo.setAttribute("aria-hidden", "true");
+      var pt = el("span", "pt"); pt.appendChild(el("b", null, pv.name));
+      var sub = !img ? "Add an image first" : (img.kind === "file" && !pv.file ? "Needs an image link" : "Opens in a new tab");
+      pt.appendChild(el("small", null, sub));
+      b.appendChild(logo); b.appendChild(pt);
+      b.disabled = !img || (img.kind === "file" && !pv.file);
+      b.addEventListener("click", function () { runImageSearch(pv); });
+      box.appendChild(b);
+    });
+  }
+  function renderImageState() {
+    var has = !!img;
+    drop.hidden = has; preview.hidden = !has;
+    $("#or").hidden = has && img.kind === "file"; $("#url-form").hidden = has && img.kind === "file";
+    if (has) {
+      var thumb = $("#thumb"); thumb.innerHTML = "";
+      var im = el("img"); im.alt = "Selected image";
+      im.onerror = function () { thumb.innerHTML = '<span class="na">No preview</span>'; };
+      im.src = img.kind === "file" ? img.src : img.url; thumb.appendChild(im);
+      if (img.kind === "file") { $("#pname").textContent = img.name; $("#psub").textContent = img.w + " \u00d7 " + img.h + " \u00b7 " + fmtSize(img.size); }
+      else { var u; try { u = new URL(img.url); } catch (e) { u = null; } $("#pname").textContent = u ? u.pathname.split("/").pop() || u.hostname : img.url; $("#psub").textContent = "Image link \u00b7 " + (u ? u.hostname : ""); }
+    }
+    renderProviders();
+  }
+  function clearImage() { if (img && img.src) URL.revokeObjectURL(img.src); img = null; imgErr.textContent = ""; imgUrlIn.value = ""; renderImageState(); }
+  function openImageDialog() {
+    if (!imgDlg.open) { closeMenu(false); imgDlg.showModal(); }
+    renderImageState();
+    if (!img) drop.focus();
+  }
+
+  function shrink(blobOrFile) {
+    // Downscale large images so uploads are fast and accepted by every service
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(blobOrFile), image = new Image();
+      image.onload = function () {
+        var max = 1600, w = image.naturalWidth, h = image.naturalHeight, scale = Math.min(1, max / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+        var c = document.createElement("canvas"); c.width = cw; c.height = ch;
+        var ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch); ctx.drawImage(image, 0, 0, cw, ch);
+        var dataUrl = c.toDataURL("image/jpeg", 0.9);
+        c.toBlob(function (blob) { resolve({ src: url, w: w, h: h, base64: dataUrl.split(",")[1], file: new File([blob], "image.jpg", { type: "image/jpeg" }) }); }, "image/jpeg", 0.9);
+      };
+      image.onerror = function () { URL.revokeObjectURL(url); reject(); };
+      image.src = url;
+    });
+  }
+  function useFile(file) {
+    imgErr.textContent = "";
+    if (!file || !/^image\//.test(file.type)) { openImageDialog(); imgErr.textContent = "That file isn't an image. Try a JPG, PNG, WebP or GIF."; return; }
+    if (file.size > 25 * 1048576) { openImageDialog(); imgErr.textContent = "That image is larger than 25 MB. Try a smaller one."; return; }
+    shrink(file).then(function (r) {
+      if (img && img.src) URL.revokeObjectURL(img.src);
+      var name = (file.name && file.name !== "image.png") ? file.name : "Pasted image";
+      img = { kind: "file", file: r.file, base64: r.base64, name: name, size: file.size, w: r.w, h: r.h, src: r.src };
+      openImageDialog();
+    }, function () { openImageDialog(); imgErr.textContent = "Couldn't read that image. Try another file."; });
+  }
+  function useUrl(u) {
+    u = (u || "").trim(); imgErr.textContent = "";
+    if (/^data:image\//i.test(u)) { fetch(u).then(function (r) { return r.blob(); }).then(function (bl) { useFile(new File([bl], "Pasted image", { type: bl.type })); }); return; }
+    if (!/^https?:\/\/\S+$/i.test(u)) { imgErr.textContent = "Paste a full image link starting with http:// or https://"; imgUrlIn.focus(); return; }
+    if (img && img.src) URL.revokeObjectURL(img.src);
+    var entry = { kind: "url", url: u };
+    img = entry;
+    openImageDialog();
+    // If the image's host allows it, also keep a copy so Bing can receive it as an upload (more reliable than a link)
+    if (window.fetch) fetch(u, { mode: "cors", credentials: "omit" }).then(function (r) { if (!r.ok) throw 0; return r.blob(); })
+      .then(function (bl) { if (!/^image\//.test(bl.type) || bl.size > 25 * 1048576) throw 0; return shrink(bl); })
+      .then(function (r) { if (img === entry) { entry.base64 = r.base64; entry.file = r.file; URL.revokeObjectURL(r.src); } }, function () {});
+  }
+  function postForm(action, build, hideOrigin) {
+    var f = el("form"); f.method = "post"; f.enctype = "multipart/form-data"; f.action = action; f.target = "_blank"; f.rel = "noopener noreferrer"; f.style.display = "none";
+    build(f); document.body.appendChild(f);
+    // Google Lens rejects uploads that come from another website's address, so send this one request without it
+    var meta = null;
+    if (hideOrigin) { meta = el("meta"); meta.name = "referrer"; meta.content = "no-referrer"; document.head.appendChild(meta); }
+    f.submit();
+    setTimeout(function () { f.remove(); if (meta) meta.content = "strict-origin-when-cross-origin"; }, 1500);
+  }
+  function runImageSearch(pv) {
+    if (!img) return;
+    if (img.kind === "url" && !(pv.id === "bing" && img.base64)) { window.open(pv.url(img.url), "_blank", "noopener"); return; }
+    if (pv.id === "lens") {
+      postForm("https://lens.google.com/v3/upload?hl=en&re=df&ep=gsbubb&st=" + Date.now(), function (f) {
+        var inp = el("input"); inp.type = "file"; inp.name = "encoded_image";
+        var dt = new DataTransfer(); dt.items.add(img.file); inp.files = dt.files; f.appendChild(inp);
+      }, true);
+    } else if (pv.id === "bing") {
+      postForm("https://www.bing.com/images/search?view=detailv2&iss=sbiupload&FORM=SBIHMP", function (f) {
+        var inp = el("input"); inp.type = "hidden"; inp.name = "imageBin"; inp.value = img.base64; f.appendChild(inp);
+      });
+    }
+  }
+
+  $("#cam").addEventListener("click", function () { openImageDialog(); });
+  imgDlg.querySelector("[data-close]").addEventListener("click", function () { imgDlg.close(); });
+  imgDlg.addEventListener("click", function (e) { if (e.target === imgDlg) imgDlg.close(); });
+  imgDlg.addEventListener("close", function () { $("#cam").focus({ preventScroll: true }); });
+  drop.addEventListener("click", function () { imgFile.click(); });
+  drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); imgFile.click(); } });
+  imgFile.addEventListener("change", function () { if (imgFile.files[0]) useFile(imgFile.files[0]); imgFile.value = ""; });
+  $("#img-change").addEventListener("click", function () { clearImage(); drop.focus(); });
+  $("#url-form").addEventListener("submit", function (e) { e.preventDefault(); useUrl(imgUrlIn.value); });
+
+  // Paste an image (or an image link) anywhere, including the search bar
+  document.addEventListener("paste", function (e) {
+    var cd = e.clipboardData; if (!cd) return;
+    var files = Array.prototype.filter.call(cd.files || [], function (f) { return /^image\//.test(f.type); });
+    if (!files.length && cd.items) Array.prototype.forEach.call(cd.items, function (it) { if (it.kind === "file" && /^image\//.test(it.type)) { var f = it.getAsFile(); if (f) files.push(f); } });
+    if (files.length) { e.preventDefault(); useFile(files[0]); return; }
+    var text = (cd.getData("text") || "").trim();
+    if ((e.target === input || imgDlg.open) && (isImageUrl(text) || /^data:image\//i.test(text))) { e.preventDefault(); useUrl(text); }
+  });
+
+  // Drag & drop an image anywhere on the page
+  var dragDepth = 0, overlay = $("#drop-overlay");
+  function hasImageFile(e) { var t = e.dataTransfer && e.dataTransfer.types; return t && Array.prototype.indexOf.call(t, "Files") !== -1; }
+  window.addEventListener("dragenter", function (e) { if (!hasImageFile(e)) return; e.preventDefault(); dragDepth++; if (imgDlg.open) drop.classList.add("over"); else overlay.classList.add("show"); });
+  window.addEventListener("dragover", function (e) { if (hasImageFile(e)) e.preventDefault(); });
+  window.addEventListener("dragleave", function () { if (--dragDepth <= 0) { dragDepth = 0; overlay.classList.remove("show"); drop.classList.remove("over"); } });
+  window.addEventListener("drop", function (e) {
+    if (!hasImageFile(e)) return;
+    e.preventDefault(); dragDepth = 0; overlay.classList.remove("show"); drop.classList.remove("over");
+    var f = e.dataTransfer.files[0];
+    if (f) useFile(f);
+  });
 
   /* ---------- Start ---------- */
   document.querySelectorAll("[data-site-name]").forEach(function (n) { n.textContent = CONFIG.siteName; });
